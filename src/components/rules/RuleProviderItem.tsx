@@ -1,14 +1,16 @@
-import cx from 'clsx';
 import { formatDistance } from 'date-fns';
 import * as React from 'react';
-import { RotateCw } from 'react-feather';
 import { useMutation, useQueryClient } from 'react-query';
 import { refreshRuleProviderByName } from 'src/api/rule-provider';
 import Button from 'src/components/Button';
+import { RotatableRotateCw } from 'src/components/shared/AnimatedRotateCW';
 import { SectionNameType } from 'src/components/shared/Basic';
+// import { framerMotionResouce } from 'src/misc/motion';
 import { ClashAPIConfig } from 'src/types';
 
 import s from './RuleProviderItem.module.css';
+
+const { useCallback } = React;
 
 function useRefresh(
   name: string,
@@ -21,23 +23,15 @@ function useRefresh(
     },
   });
 
-  const onClickRefreshButton = (ev: React.MouseEvent<HTMLButtonElement>) => {
-    ev.preventDefault();
-    mutate({ name, apiConfig });
-  };
+  const onClickRefreshButton = useCallback(
+    (ev: React.MouseEvent<HTMLButtonElement>) => {
+      ev.preventDefault();
+      mutate({ name, apiConfig });
+    },
+    [apiConfig, mutate, name]
+  );
 
   return [onClickRefreshButton, isLoading];
-}
-
-function RotatableRotateCw({ isRotating }: { isRotating: boolean }) {
-  const cls = cx(s.rotate, {
-    [s.isRotating]: isRotating,
-  });
-  return (
-    <span className={cls}>
-      <RotateCw width={16} />
-    </span>
-  );
 }
 
 export function RuleProviderItem({

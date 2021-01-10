@@ -1,3 +1,5 @@
+import { ClashAPIConfig } from 'src/types';
+
 import { getURLAndInit } from '../misc/request-helper';
 const endpoint = '/proxies';
 
@@ -13,7 +15,7 @@ $ curl "http://127.0.0.1:8080/proxies/GLOBAL" -XPUT -d '{ "name": "Proxy" }' -i
 HTTP/1.1 204 No Content
 */
 
-export async function fetchProxies(config) {
+export async function fetchProxies(config: ClashAPIConfig) {
   const { url, init } = getURLAndInit(config);
   const res = await fetch(url + endpoint, init);
   return await res.json();
@@ -50,8 +52,14 @@ export async function fetchProviderProxies(config) {
   return await res.json();
 }
 
-export async function updateProviderByName(config, name) {
-  const { url, init } = getURLAndInit(config);
+export async function updateProviderByName({
+  name,
+  apiConfig,
+}: {
+  name: string;
+  apiConfig: ClashAPIConfig;
+}) {
+  const { url, init } = getURLAndInit(apiConfig);
   const options = { ...init, method: 'PUT' };
   return await fetch(url + '/providers/proxies/' + name, options);
 }

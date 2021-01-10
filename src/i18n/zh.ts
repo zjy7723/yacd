@@ -31,4 +31,5 @@ export const data = {
   chart_style: '流量图样式',
   latency_test_url: '延迟测速 URL',
   lang: '语言',
+  'Update All Proxy Providers': '更新所有 Proxy Provier',
 };

@@ -1,3 +1,4 @@
+import { useQuery } from 'react-query';
 import { atom } from 'recoil';
 /* import { ProxyItem, ProxiesMapping, DelayMapping } from 'src/store/types'; */
 import {
@@ -51,6 +52,52 @@ export const getDangleProxyNames = (s: State) => s.proxies.dangleProxyNames;
 export const getShowModalClosePrevConns = (s: State) =>
   s.proxies.showModalClosePrevConns;
 
+export function useProxyQuery(apiConfig: ClashAPIConfig) {
+  return useQuery(['/proxies', apiConfig], () => fetchProxies2(apiConfig));
+}
+
+async function fetchProxies2(apiConfig: ClashAPIConfig) {
+  const [proxiesData, providersData] = await Promise.all([
+    proxiesAPI.fetchProxies(apiConfig),
+    proxiesAPI.fetchProviderProxies(apiConfig),
+  ]);
+  return formatProxiesData({ proxiesData, providersData });
+}
+
+function formatProxiesData({ proxiesData, providersData }) {
+  const {
+    providers: proxyProviders,
+    proxies: providerProxies,
+  } = formatProxyProviders(providersData.providers);
+  const proxies = { ...providerProxies, ...proxiesData.proxies };
+  const [groupNames, proxyNames] = retrieveGroupNamesFrom(proxies);
+
+  const delayNext = {};
+
+  for (let i = 0; i < proxyNames.length; i++) {
+    const name = proxyNames[i];
+    const { history } = proxies[name] || { history: [] };
+    const h = history[history.length - 1];
+    if (h && typeof h.delay === 'number') {
+      delayNext[name] = { number: h.delay };
+    }
+  }
+
+  // proxies that are not from a provider
+  const dangleProxyNames = [];
+  for (const v of proxyNames) {
+    if (!providerProxies[v]) dangleProxyNames.push(v);
+  }
+
+  return {
+    proxies,
+    groupNames,
+    delay: delayNext,
+    proxyProviders,
+    dangleProxyNames,
+  };
+}
+
 export function fetchProxies(apiConfig: ClashAPIConfig) {
   return async (dispatch: any, getState: any) => {
     const [proxiesData, providersData] = await Promise.all([
@@ -90,19 +137,6 @@ export function fetchProxies(apiConfig: ClashAPIConfig) {
       s.proxies.proxyProviders = proxyProviders;
       s.proxies.dangleProxyNames = dangleProxyNames;
     });
-  };
-}
-
-export function updateProviderByName(apiConfig: ClashAPIConfig, name: string) {
-  return async (dispatch: DispatchFn) => {
-    try {
-      await proxiesAPI.updateProviderByName(apiConfig, name);
-    } catch (x) {
-      // ignore
-    }
-    // should be optimized
-    // but ¯\_(ツ)_/¯
-    dispatch(fetchProxies(apiConfig));
   };
 }
 

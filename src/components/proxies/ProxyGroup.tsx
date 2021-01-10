@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Zap } from 'react-feather';
+import { switchProxy, useProxyQuery } from 'src/store/proxies';
 
 import {
   getCollapsibleIsOpen,
   getHideUnavailableProxies,
   getProxySortBy,
 } from '../../store/app';
-import { getProxies, switchProxy } from '../../store/proxies';
 import Button from '../Button';
 import CollapsibleSectionHeader from '../CollapsibleSectionHeader';
 import { connect, useStoreActions } from '../StateProvider';
@@ -26,17 +26,18 @@ function ZapWrapper() {
 
 function ProxyGroupImpl({
   name,
-  all: allItems,
   delay,
   hideUnavailableProxies,
   proxySortBy,
-  proxies,
-  type,
-  now,
   isOpen,
   apiConfig,
   dispatch,
 }) {
+  const {
+    data: { proxies },
+  } = useProxyQuery(apiConfig);
+  const group = proxies[name];
+  const { all: allItems, type, now } = group;
   const all = useFilteredAndSorted(
     allItems,
     delay,
@@ -103,21 +104,14 @@ function ProxyGroupImpl({
 }
 
 export const ProxyGroup = connect((s, { name, delay }) => {
-  const proxies = getProxies(s);
   const collapsibleIsOpen = getCollapsibleIsOpen(s);
   const proxySortBy = getProxySortBy(s);
   const hideUnavailableProxies = getHideUnavailableProxies(s);
 
-  const group = proxies[name];
-  const { all, type, now } = group;
   return {
-    all,
     delay,
     hideUnavailableProxies,
     proxySortBy,
-    proxies,
-    type,
-    now,
     isOpen: collapsibleIsOpen[`proxyGroup:${name}`],
   };
 })(ProxyGroupImpl);

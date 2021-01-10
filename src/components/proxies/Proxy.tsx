@@ -1,8 +1,11 @@
 import cx from 'clsx';
 import * as React from 'react';
 import { keyCodes } from 'src/misc/keycode';
+import { getClashAPIConfig } from 'src/store/app';
+import { NonProxyTypes, useProxyQuery } from 'src/store/proxies';
+import { State } from 'src/store/types';
+import { ClashAPIConfig } from 'src/types';
 
-import { getDelay, getProxies, NonProxyTypes } from '../../store/proxies';
 import { connect } from '../StateProvider';
 import s0 from './Proxy.module.css';
 import { ProxyLatency } from './ProxyLatency';
@@ -50,22 +53,30 @@ function getProxyDotBackgroundColor(
 }
 
 type ProxyProps = {
+  apiConfig: ClashAPIConfig;
   name: string;
   now?: boolean;
-  proxy: any;
-  latency: any;
+  // proxy: any;
+  // latency: any;
   isSelectable?: boolean;
   onClick?: (proxyName: string) => unknown;
 };
 
 function ProxySmallImpl({
+  apiConfig,
   now,
   name,
-  proxy,
-  latency,
+  // proxy,
+  // latency,
   isSelectable,
   onClick,
 }: ProxyProps) {
+  const {
+    data: { proxies, delay },
+  } = useProxyQuery(apiConfig);
+  const proxy = proxies[name];
+  const latency = delay[name];
+
   const color = useMemo(() => getProxyDotBackgroundColor(latency, proxy.type), [
     latency,
     proxy,
@@ -116,13 +127,20 @@ function formatProxyType(t: string) {
 }
 
 function ProxyImpl({
+  apiConfig,
   now,
   name,
-  proxy,
-  latency,
+  // proxy,
+  // latency,
   isSelectable,
   onClick,
 }: ProxyProps) {
+  const {
+    data: { proxies, delay },
+  } = useProxyQuery(apiConfig);
+  const proxy = proxies[name];
+  const latency = delay[name];
+
   const color = useMemo(() => getLabelColor(latency), [latency]);
   const doSelect = React.useCallback(() => {
     isSelectable && onClick && onClick(name);
@@ -164,12 +182,9 @@ function ProxyImpl({
   );
 }
 
-const mapState = (s: any, { name }) => {
-  const proxies = getProxies(s);
-  const delay = getDelay(s);
+const mapState = (s: State) => {
   return {
-    proxy: proxies[name],
-    latency: delay[name],
+    apiConfig: getClashAPIConfig(s),
   };
 };
 

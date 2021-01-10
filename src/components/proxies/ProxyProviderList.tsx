@@ -1,9 +1,14 @@
 import * as React from 'react';
+import { FormattedProxyProvider } from 'src/store/types';
 
 import ContentHeader from '../ContentHeader';
 import { ProxyProvider } from './ProxyProvider';
 
-export function ProxyProviderList({ items }) {
+type Props = {
+  items: FormattedProxyProvider[];
+};
+
+export function ProxyProviderList({ items }: Props) {
   if (items.length === 0) return null;
 
   return (

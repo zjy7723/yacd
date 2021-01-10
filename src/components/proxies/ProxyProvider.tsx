@@ -10,16 +10,12 @@ import {
   getHideUnavailableProxies,
   getProxySortBy,
 } from '../../store/app';
-import {
-  getDelay,
-  healthcheckProviderByName,
-  updateProviderByName,
-} from '../../store/proxies';
+import { getDelay, healthcheckProviderByName } from '../../store/proxies';
 import Button from '../Button';
 import Collapsible from '../Collapsible';
 import CollapsibleSectionHeader from '../CollapsibleSectionHeader';
 import { connect, useStoreActions } from '../StateProvider';
-import { useFilteredAndSorted } from './hooks';
+import { useFilteredAndSorted, useProxyProviderRefresher } from './hooks';
 import { ProxyList, ProxyListSummaryView } from './ProxyList';
 import s from './ProxyProvider.module.css';
 
@@ -58,10 +54,8 @@ function ProxyProviderImpl({
     proxySortBy
   );
   const [isHealthcheckLoading, setIsHealthcheckLoading] = useState(false);
-  const updateProvider = useCallback(
-    () => dispatch(updateProviderByName(apiConfig, name)),
-    [apiConfig, dispatch, name]
-  );
+  const [updateProvider] = useProxyProviderRefresher(name, apiConfig);
+
   const healthcheckProvider = useCallback(async () => {
     setIsHealthcheckLoading(true);
     await dispatch(healthcheckProviderByName(apiConfig, name));

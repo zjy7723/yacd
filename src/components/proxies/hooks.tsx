@@ -2,6 +2,11 @@ import * as React from 'react';
 import { useRecoilState } from 'recoil';
 import { DelayMapping, ProxiesMapping, ProxyItem } from 'src/store/types';
 
+import { updateProviderByName } from 'src/api/proxies';
+
+import { useMutation, useQueryClient } from 'react-query';
+import { ClashAPIConfig } from 'src/types';
+
 import {
   // types
   NonProxyTypes,
@@ -9,7 +14,7 @@ import {
   proxyFilterText,
 } from '../../store/proxies';
 
-const { useMemo } = React;
+const { useMemo, useCallback } = React;
 
 function filterAvailableProxies(list: string[], delay: DelayMapping) {
   return list.filter((name) => {
@@ -138,4 +143,29 @@ export function useFilteredAndSorted(
       ),
     [all, delay, hideUnavailableProxies, filterText, proxySortBy, proxies]
   );
+}
+
+export function useProxyProviderRefresher(
+  name: string,
+  apiConfig: ClashAPIConfig
+): [(ev: React.MouseEvent<HTMLButtonElement>) => void, boolean] {
+  const queryClient = useQueryClient();
+  const { mutate, isLoading } = useMutation(updateProviderByName, {
+    onSuccess: () => {
+      // TODO invalidate one provider
+      // clash has such a API to obtain one.
+      console.log(queryClient);
+      // dispatch(fetchProxies(apiConfig));
+      // queryClient.invalidateQueries('/providers/rules');
+    },
+  });
+  const onClick = useCallback(
+    (ev: React.MouseEvent<HTMLButtonElement>) => {
+      ev.preventDefault();
+      mutate({ name, apiConfig });
+    },
+    [apiConfig, mutate, name]
+  );
+
+  return [onClick, isLoading];
 }
