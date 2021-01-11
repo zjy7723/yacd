@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { atom } from 'recoil';
 /* import { ProxyItem, ProxiesMapping, DelayMapping } from 'src/store/types'; */
 import {
@@ -54,6 +54,47 @@ export const getShowModalClosePrevConns = (s: State) =>
 
 export function useProxyQuery(apiConfig: ClashAPIConfig) {
   return useQuery(['/proxies', apiConfig], () => fetchProxies2(apiConfig));
+}
+
+async function t({
+  apiConfig,
+  dangleProxyNames,
+  names,
+  latencyTestUrl,
+}: {
+  apiConfig: ClashAPIConfig;
+  dangleProxyNames: string[];
+  names: string[];
+  latencyTestUrl: string;
+}) {
+  const filteredNames = names
+    // remove names that are provided by proxy providers
+    .filter((p) => dangleProxyNames.indexOf(p) > -1);
+  const works = filteredNames.map((p) =>
+    proxiesAPI.requestDelayForProxy(apiConfig, p, latencyTestUrl)
+  );
+  const results = await Promise.all(works);
+  const ret = {};
+  for (let i = 0; i < results.length; i++) {
+    const n = filteredNames[i];
+    ret[n] = results[i][1];
+  }
+  return ret;
+}
+
+export function useTestLatency(apiConfig: ClashAPIConfig) {
+  const queryClient = useQueryClient();
+  return useMutation(t, {
+    onSuccess(results) {
+      // queryClient.invalidateQueries(['/proxies', apiConfig]);
+      const current = queryClient.getQueryData<{ delay: Record<string, any> }>([
+        '/proxies',
+        apiConfig,
+      ]);
+      const data = { ...current, delay: { ...current.delay, results } };
+      queryClient.setQueryData(['/proxies', apiConfig], data);
+    },
+  });
 }
 
 async function fetchProxies2(apiConfig: ClashAPIConfig) {
@@ -315,23 +356,20 @@ function requestDelayForProxyOnce(apiConfig: ClashAPIConfig, name: string) {
       name,
       latencyTestUrl
     );
-    let error = '';
-    if (res.ok === false) {
-      error = res.statusText;
-    }
-    const { delay } = await res.json();
+    // let error = '';
+    // if (res.ok === false) {
+    //   error = res.statusText;
+    // }
+    // const { delay } = await res.json();
 
     const delayPrev = getDelay(getState());
     const delayNext = {
       ...delayPrev,
-      [name]: {
-        error,
-        number: delay,
-      },
+      [name]: res[1],
     };
 
     dispatch('requestDelayForProxyOnce', (s) => {
-      s.proxies.delay = delayNext;
+      // s.proxies.delay = delayNext;
     });
   };
 }

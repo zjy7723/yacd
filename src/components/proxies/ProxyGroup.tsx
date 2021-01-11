@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { Zap } from 'react-feather';
-import { switchProxy, useProxyQuery } from 'src/store/proxies';
+import { switchProxy, useProxyQuery, useTestLatency } from 'src/store/proxies';
 
 import {
   getCollapsibleIsOpen,
   getHideUnavailableProxies,
+  getLatencyTestUrl,
   getProxySortBy,
 } from '../../store/app';
 import Button from '../Button';
@@ -27,6 +28,7 @@ function ZapWrapper() {
 function ProxyGroupImpl({
   name,
   delay,
+  latencyTestUrl,
   hideUnavailableProxies,
   proxySortBy,
   isOpen,
@@ -34,8 +36,9 @@ function ProxyGroupImpl({
   dispatch,
 }) {
   const {
-    data: { proxies },
+    data: { proxies, dangleProxyNames },
   } = useProxyQuery(apiConfig);
+
   const group = proxies[name];
   const { all: allItems, type, now } = group;
   const all = useFilteredAndSorted(
@@ -65,14 +68,24 @@ function ProxyGroupImpl({
     [apiConfig, dispatch, name, isSelectable]
   );
 
-  const [isTestingLatency, setIsTestingLatency] = useState(false);
-  const testLatency = useCallback(async () => {
-    setIsTestingLatency(true);
-    try {
-      await requestDelayForProxies(apiConfig, all);
-    } catch (err) {}
-    setIsTestingLatency(false);
-  }, [all, apiConfig, requestDelayForProxies]);
+  const [isTestingLatency, _setIsTestingLatency] = useState(false);
+  const testLatencyMutation = useTestLatency(apiConfig);
+  const testLatency = useCallback(() => {
+    return testLatencyMutation.mutate({
+      apiConfig,
+      dangleProxyNames,
+      names: all,
+      latencyTestUrl,
+    });
+  }, [testLatencyMutation, apiConfig, dangleProxyNames, all, latencyTestUrl]);
+
+  // const testLatency = useCallback(async () => {
+  //   setIsTestingLatency(true);
+  //   try {
+  //     await requestDelayForProxies(apiConfig, all);
+  //   } catch (err) {}
+  //   setIsTestingLatency(false);
+  // }, [all, apiConfig, requestDelayForProxies]);
 
   return (
     <div className={s0.group}>
@@ -107,11 +120,13 @@ export const ProxyGroup = connect((s, { name, delay }) => {
   const collapsibleIsOpen = getCollapsibleIsOpen(s);
   const proxySortBy = getProxySortBy(s);
   const hideUnavailableProxies = getHideUnavailableProxies(s);
+  const latencyTestUrl = getLatencyTestUrl(s);
 
   return {
     delay,
     hideUnavailableProxies,
     proxySortBy,
+    latencyTestUrl,
     isOpen: collapsibleIsOpen[`proxyGroup:${name}`],
   };
 })(ProxyGroupImpl);

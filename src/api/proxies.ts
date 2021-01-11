@@ -33,14 +33,22 @@ export async function requestToSwitchProxy(apiConfig, name1, name2) {
 }
 
 export async function requestDelayForProxy(
-  apiConfig,
-  name,
+  apiConfig: ClashAPIConfig,
+  name: string,
   latencyTestUrl = 'http://www.gstatic.com/generate_204'
 ) {
   const { url, init } = getURLAndInit(apiConfig);
   const qs = `timeout=5000&url=${latencyTestUrl}`;
   const fullURL = `${url}${endpoint}/${encodeURIComponent(name)}/delay?${qs}`;
-  return await fetch(fullURL, init);
+  const res = await fetch(fullURL, init);
+  const ret: { error?: string; number?: number } = {};
+  if (res.ok === false) {
+    ret.error = res.statusText;
+  } else {
+    const { delay } = await res.json();
+    ret.number = delay;
+  }
+  return [res.ok, ret];
 }
 
 export async function fetchProviderProxies(config) {
