@@ -12,4 +12,5 @@ RUN yarn config set network-timeout 300000 \
 FROM nginx:alpine
 RUN rm -rf /usr/share/nginx/html/*
 COPY --from=builder /app/public /usr/share/nginx/html
+EXPOSE 5080
 CMD ["nginx", "-g", "daemon off;"]

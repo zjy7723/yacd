@@ -24,6 +24,10 @@ export function register(config?: Config) {
       return;
     }
 
+    if (1 === 1) {
+        return;
+    }
+
     window.addEventListener('load', () => {
       const swUrl = `${process.env.PUBLIC_URL}/sw.js`;
 

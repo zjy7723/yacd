@@ -21,6 +21,7 @@ export type ConnectionItem = {
     sourcePort: string;
     destinationPort: string;
     host: string;
+    process: string;
   };
   upload: number;
   download: number;
@@ -29,6 +30,7 @@ export type ConnectionItem = {
   chains: string[];
   // e.g. 'Match', 'DomainKeyword'
   rule: string;
+  rulePayload: string;
 };
 type ConnectionsData = {
   downloadTotal: number;

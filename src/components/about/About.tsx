@@ -53,13 +53,13 @@ function AboutImpl(props: Props) {
         <Version
           name="Clash"
           version={version.version}
-          link="https://github.com/Dreamacro/clash"
+          link="https://github.com/yaling888/clash"
         />
       ) : null}
       <Version
         name="Yacd"
         version={__VERSION__}
-        link="https://github.com/haishanh/yacd"
+        link="https://github.com/yaling888/yacd"
       />
     </>
   );
