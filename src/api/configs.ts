@@ -3,6 +3,7 @@ import { ClashGeneralConfig } from 'src/store/types';
 import { ClashAPIConfig } from 'src/types';
 
 const endpoint = '/configs';
+const flushFakeIPPoolEndpoint = '/cache/fakeip/flush';
 
 export async function fetchConfigs(apiConfig: ClashAPIConfig) {
   const { url, init } = getURLAndInit(apiConfig);
@@ -29,4 +30,19 @@ export async function updateConfigs(
   const { url, init } = getURLAndInit(apiConfig);
   const body = JSON.stringify(configsPatchWorkaround(o));
   return await fetch(url + endpoint, { ...init, body, method: 'PATCH' });
+}
+
+export async function reloadConfigs(
+    apiConfig: ClashAPIConfig
+) {
+  const { url, init } = getURLAndInit(apiConfig);
+  const body = '{"path": "", "payload": ""}';
+  return await fetch(url + endpoint + '?force=true', { ...init, body, method: 'PUT' });
+}
+
+export async function flushFakeIPPool(
+    apiConfig: ClashAPIConfig
+) {
+  const { url, init } = getURLAndInit(apiConfig);
+  return await fetch(url + flushFakeIPPoolEndpoint, { ...init, method: 'POST' });
 }

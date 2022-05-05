@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { LogOut } from 'react-feather';
+import { LogOut, RotateCw, Trash2 } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import * as logsApi from 'src/api/logs';
 import Select from 'src/components/shared/Select';
@@ -11,7 +11,7 @@ import {
   getLatencyTestUrl,
   getSelectedChartStyleIndex,
 } from '../store/app';
-import { fetchConfigs, getConfigs, updateConfigs } from '../store/configs';
+import { fetchConfigs, getConfigs, updateConfigs, reloadConfigs, flushFakeIPPool } from '../store/configs';
 import { openModal } from '../store/modals';
 import Button from './Button';
 import s0 from './Config.module.scss';
@@ -29,8 +29,8 @@ const propsList = [{ id: 0 }, { id: 1 }, { id: 2 }, { id: 3 }];
 
 const logLeveOptions = [
   ['debug', 'Debug'],
-  ['warning', 'Warning'],
   ['info', 'Info'],
+  ['warning', 'Warning'],
   ['error', 'Error'],
   ['silent', 'Silent'],
 ];
@@ -40,6 +40,8 @@ const portFields = [
   { key: 'socks-port', label: 'SOCKS5 Proxy Port' },
   { key: 'mixed-port', label: 'Mixed Port' },
   { key: 'redir-port', label: 'Redir Port' },
+  { key: 'tproxy-port', label: 'tProxy Port' },
+  { key: 'mitm-port', label: 'MITM Port' },
 ];
 
 const langOptions = [
@@ -50,6 +52,7 @@ const langOptions = [
 const modeOptions = [
   ['Global', 'Global'],
   ['Rule', 'Rule'],
+  ['Script', 'Script'],
   ['Direct', 'Direct'],
 ];
 
@@ -130,6 +133,8 @@ function ConfigImpl({
             logsApi.reconnect({ ...apiConfig, logLevel: value });
           }
           break;
+        case 'mitm-port':
+        case 'tproxy-port':
         case 'redir-port':
         case 'socks-port':
         case 'mixed-port':
@@ -162,7 +167,9 @@ function ConfigImpl({
         case 'port':
         case 'socks-port':
         case 'mixed-port':
-        case 'redir-port': {
+        case 'redir-port':
+        case 'tproxy-port':
+        case 'mitm-port': {
           const num = parseInt(value, 10);
           if (num < 0 || num > 65535) return;
           dispatch(updateConfigs(apiConfig, { [name]: num }));
@@ -178,6 +185,14 @@ function ConfigImpl({
     },
     [apiConfig, dispatch, updateAppConfig]
   );
+
+  const handleReloadConfigs = useCallback(() => {
+    dispatch(reloadConfigs(apiConfig));
+  },[apiConfig, dispatch]);
+
+  const handleFlushFakeIPPool = useCallback(() => {
+    dispatch(flushFakeIPPool(apiConfig));
+  },[apiConfig, dispatch]);
 
   const mode = useMemo(() => {
     const m = configState.mode;
@@ -280,6 +295,32 @@ function ConfigImpl({
             start={<LogOut size={16} />}
             label="Switch backend"
             onClick={openAPIConfigModal}
+          />
+        </div>
+      </div>
+
+      <div className={s0.sep}>
+        <div />
+      </div>
+
+      <div className={s0.section}>
+        <div>
+          <div className={s0.label}>Reload</div>
+          <Button
+              start={<RotateCw size={16} />}
+              label={t('reload_config_file')}
+              onClick={handleReloadConfigs}
+          />
+        </div>
+      </div>
+
+      <div className={s0.section}>
+        <div>
+          <div className={s0.label}>FakeIP</div>
+          <Button
+              start={<Trash2 size={16} />}
+              label={t('flush_fake_ip_pool')}
+              onClick={handleFlushFakeIPPool}
           />
         </div>
       </div>

@@ -89,6 +89,52 @@ export function updateConfigs(
   };
 }
 
+export function reloadConfigs(apiConfig: ClashAPIConfig) {
+  return async (dispatch: DispatchFn) => {
+    configsAPI
+        .reloadConfigs(apiConfig)
+        .then(
+            (res) => {
+              if (res.ok === false) {
+                // eslint-disable-next-line no-console
+                console.log('Error update configs', res.statusText);
+              }
+            },
+            (err) => {
+              // eslint-disable-next-line no-console
+              console.log('Error update configs', err);
+              throw err;
+            }
+        )
+        .then(() => {
+          dispatch(fetchConfigs(apiConfig));
+        });
+  };
+}
+
+export function flushFakeIPPool(apiConfig: ClashAPIConfig) {
+  return async (dispatch: DispatchFn) => {
+    configsAPI
+        .flushFakeIPPool(apiConfig)
+        .then(
+            (res) => {
+              if (res.ok === false) {
+                // eslint-disable-next-line no-console
+                console.log('Error update configs', res.statusText);
+              }
+            },
+            (err) => {
+              // eslint-disable-next-line no-console
+              console.log('Error update configs', err);
+              throw err;
+            }
+        )
+        .then(() => {
+          dispatch(fetchConfigs(apiConfig));
+        });
+  };
+}
+
 export const initialState: StateConfigs = {
   configs: {
     port: 7890,

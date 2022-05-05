@@ -36,4 +36,6 @@ export const data = {
   lang: 'Language',
   update_all_rule_provider: 'Update all rule providers',
   update_all_proxy_provider: 'Update all proxy providers',
+  reload_config_file: 'Reload config file',
+  flush_fake_ip_pool: 'Flush fake-ip data',
 };
