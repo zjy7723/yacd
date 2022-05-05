@@ -9,18 +9,16 @@ export const getClashAPIConfig = (s: State) => {
   const idx = s.app.selectedClashAPIConfigIndex;
   return s.app.clashAPIConfigs[idx];
 };
-export const getSelectedClashAPIConfigIndex = (s: State) =>
-  s.app.selectedClashAPIConfigIndex;
+export const getSelectedClashAPIConfigIndex = (s: State) => s.app.selectedClashAPIConfigIndex;
 export const getClashAPIConfigs = (s: State) => s.app.clashAPIConfigs;
 export const getTheme = (s: State) => s.app.theme;
-export const getSelectedChartStyleIndex = (s: State) =>
-  s.app.selectedChartStyleIndex;
+export const getSelectedChartStyleIndex = (s: State) => s.app.selectedChartStyleIndex;
 export const getLatencyTestUrl = (s: State) => s.app.latencyTestUrl;
 export const getCollapsibleIsOpen = (s: State) => s.app.collapsibleIsOpen;
 export const getProxySortBy = (s: State) => s.app.proxySortBy;
-export const getHideUnavailableProxies = (s: State) =>
-  s.app.hideUnavailableProxies;
+export const getHideUnavailableProxies = (s: State) => s.app.hideUnavailableProxies;
 export const getAutoCloseOldConns = (s: State) => s.app.autoCloseOldConns;
+export const getLogStreamingPaused = (s: State) => s.app.logStreamingPaused;
 
 const saveStateDebounced = debounce(saveState, 600);
 
@@ -96,34 +94,33 @@ export function updateClashAPIConfig({ baseURL, secret }) {
 }
 
 const rootEl = document.querySelector('html');
-const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-function setTheme(theme = 'dark') {
-  if (theme === 'dark') {
+type ThemeType = 'dark' | 'light' | 'auto';
+
+function setTheme(theme: ThemeType = 'dark') {
+  if (theme === 'auto') {
+    rootEl.setAttribute('data-theme', 'auto');
+  } else if (theme === 'dark') {
     rootEl.setAttribute('data-theme', 'dark');
-    themeColorMeta.setAttribute('content', '#202020');
   } else {
     rootEl.setAttribute('data-theme', 'light');
-    themeColorMeta.setAttribute('content', '#eeeeee');
   }
 }
 
-export function switchTheme() {
+export function switchTheme(nextTheme = 'auto') {
   return (dispatch: DispatchFn, getState: GetStateFn) => {
     const currentTheme = getTheme(getState());
-    const theme = currentTheme === 'light' ? 'dark' : 'light';
+    if (currentTheme === nextTheme) return;
     // side effect
-    setTheme(theme);
+    setTheme(nextTheme as ThemeType);
     dispatch('storeSwitchTheme', (s) => {
-      s.app.theme = theme;
+      s.app.theme = nextTheme;
     });
     // side effect
     saveState(getState().app);
   };
 }
 
-export function selectChartStyleIndex(
-  selectedChartStyleIndex: number | string
-) {
+export function selectChartStyleIndex(selectedChartStyleIndex: number | string) {
   return (dispatch: DispatchFn, getState: GetStateFn) => {
     dispatch('appSelectChartStyleIndex', (s) => {
       s.app.selectedChartStyleIndex = Number(selectedChartStyleIndex);
@@ -143,11 +140,7 @@ export function updateAppConfig(name: string, value: unknown) {
   };
 }
 
-export function updateCollapsibleIsOpen(
-  prefix: string,
-  name: string,
-  v: boolean
-) {
+export function updateCollapsibleIsOpen(prefix: string, name: string, v: boolean) {
   return (dispatch: DispatchFn, getState: GetStateFn) => {
     dispatch('updateCollapsibleIsOpen', (s: State) => {
       s.app.collapsibleIsOpen[`${prefix}:${name}`] = v;
@@ -158,11 +151,9 @@ export function updateCollapsibleIsOpen(
 }
 
 const defaultClashAPIConfig = {
-  baseURL:
-    document.getElementById('app')?.getAttribute('data-base-url') ??
-    'http://127.0.0.1:9090',
+  baseURL: document.getElementById('app')?.getAttribute('data-base-url') ?? 'http://127.0.0.1:9090',
   secret: '',
-  addedAt: 0,
+  addedAt: 0
 };
 // type Theme = 'light' | 'dark';
 const defaultState: StateApp = {
@@ -179,6 +170,7 @@ const defaultState: StateApp = {
   proxySortBy: 'Natural',
   hideUnavailableProxies: false,
   autoCloseOldConns: false,
+  logStreamingPaused: false
 };
 
 function parseConfigQueryString() {
@@ -202,7 +194,11 @@ export function initialState() {
   if (conf) {
     const url = new URL(conf.baseURL);
     if (query.hostname) {
-      url.hostname = query.hostname;
+      if (query.hostname.indexOf('http') === 0) {
+        url.href = decodeURIComponent(query.hostname);
+      } else {
+        url.hostname = query.hostname;
+      }
     }
     if (query.port) {
       url.port = query.port;
