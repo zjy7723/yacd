@@ -27,14 +27,9 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install
-        run: |
-          yarn
-          npx browserslist@latest --update-db
-          yarn upgrade
-
+        run: yarn
       - name: Lint
         run: yarn lint
-
       - name: Build
         run: yarn build
 
