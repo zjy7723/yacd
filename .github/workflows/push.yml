@@ -75,9 +75,3 @@ jobs:
           git status
           git commit -m "Push to gh-pages"
           git push -f https://$GITHUB_ACTOR:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git HEAD:$BRANCH
-
-      - name: Delete workflow runs
-        uses: GitRML/delete-workflow-runs@main
-        with:
-          retain_days: 1
-          keep_minimum_runs: 2

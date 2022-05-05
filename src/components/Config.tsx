@@ -312,9 +312,7 @@ function ConfigImpl({
               onClick={handleReloadConfigs}
           />
         </div>
-      </div>
 
-      <div className={s0.section}>
         <div>
           <div className={s0.label}>FakeIP</div>
           <Button
