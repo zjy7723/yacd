@@ -164,6 +164,7 @@ function ConfigImpl({
           }
           setConfigState(name, value);
           break;
+        case 'enable':
         case 'stack':
           setTunConfigState(name, value);
           dispatch(updateConfigs(apiConfig, { 'tun': {[name]: value }}));
@@ -266,17 +267,6 @@ function ConfigImpl({
         </div>
 
         <div>
-          <div className={s0.label}>TUN Stack</div>
-          <Select
-              options={tunStackOptions}
-              selected={configState['tun']['stack']}
-              onChange={(e) =>
-                  handleChangeValue({ name: 'stack', value: e.target.value })
-              }
-          />
-        </div>
-
-        <div>
           <div className={s0.label}>Allow LAN</div>
           <div className={s0.wrapSwitch}>
             <Switch
@@ -285,6 +275,29 @@ function ConfigImpl({
               onChange={handleSwitchOnChange}
             />
           </div>
+        </div>
+
+        <div>
+          <div className={s0.label}>{t('enable_tun_device')}</div>
+          <div className={s0.wrapSwitch}>
+            <Switch
+                checked={configState['tun']['enable']}
+                onChange={(value: boolean) =>
+                    handleChangeValue({ name: 'enable', value: value })
+                }
+            />
+          </div>
+        </div>
+
+        <div>
+          <div className={s0.label}>TUN Stack</div>
+          <Select
+              options={tunStackOptions}
+              selected={configState['tun']['stack']}
+              onChange={(e) =>
+                  handleChangeValue({ name: 'stack', value: e.target.value })
+              }
+          />
         </div>
       </div>
 
