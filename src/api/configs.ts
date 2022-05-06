@@ -1,5 +1,5 @@
 import { getURLAndInit } from 'src/misc/request-helper';
-import { ClashGeneralConfig } from 'src/store/types';
+import { ClashGeneralConfig, TunPartial } from 'src/store/types';
 import { ClashAPIConfig } from 'src/types';
 
 const endpoint = '/configs';
@@ -14,7 +14,7 @@ export async function fetchConfigs(apiConfig: ClashAPIConfig) {
 // req body
 // { Path: string }
 
-type ClashConfigPartial = Partial<ClashGeneralConfig>;
+type ClashConfigPartial = TunPartial<ClashGeneralConfig>;
 function configsPatchWorkaround(o: ClashConfigPartial) {
   // backward compatibility for older clash  using `socket-port`
   if ('socks-port' in o) {
@@ -32,7 +32,7 @@ export async function updateConfigs(
   return await fetch(url + endpoint, { ...init, body, method: 'PATCH' });
 }
 
-export async function reloadConfigs(
+export async function reloadConfigFile(
     apiConfig: ClashAPIConfig
 ) {
   const { url, init } = getURLAndInit(apiConfig);

@@ -4,6 +4,7 @@ import {
   GetStateFn,
   State,
   StateConfigs,
+  TunPartial,
 } from 'src/store/types';
 import { ClashAPIConfig } from 'src/types';
 
@@ -59,9 +60,11 @@ function markHaveFetchedConfig() {
   };
 }
 
+type generalConfig = Omit<ClashGeneralConfig, 'tun'>
+
 export function updateConfigs(
   apiConfig: ClashAPIConfig,
-  partialConfg: Partial<ClashGeneralConfig>
+  partialConfg: TunPartial<ClashGeneralConfig>
 ) {
   return async (dispatch: DispatchFn) => {
     configsAPI
@@ -84,15 +87,20 @@ export function updateConfigs(
       });
 
     dispatch('storeConfigsOptimisticUpdateConfigs', (s) => {
-      s.configs.configs = { ...s.configs.configs, ...partialConfg };
+      if (partialConfg.tun != null) {
+        s.configs.configs.tun = { ...s.configs.configs.tun, ...partialConfg.tun };
+      } else {
+        const config: generalConfig = {...s.configs.configs, ...partialConfg};
+        s.configs.configs = config
+      }
     });
   };
 }
 
-export function reloadConfigs(apiConfig: ClashAPIConfig) {
+export function reloadConfigFile(apiConfig: ClashAPIConfig) {
   return async (dispatch: DispatchFn) => {
     configsAPI
-        .reloadConfigs(apiConfig)
+        .reloadConfigFile(apiConfig)
         .then(
             (res) => {
               if (res.ok === false) {
@@ -139,10 +147,20 @@ export const initialState: StateConfigs = {
   configs: {
     port: 7890,
     'socks-port': 7891,
+    'mixed-port': 0,
     'redir-port': 0,
+    'tproxy-port': 0,
+    'mitm-port': 0,
     'allow-lan': false,
-    mode: 'Rule',
+    mode: 'rule',
     'log-level': 'uninit',
+    tun: {
+      enable: false,
+      device: '',
+      stack: '',
+      'dns-hijack': [],
+      'auto-route': false,
+    },
   },
   haveFetchedConfig: false,
 };

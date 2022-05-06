@@ -16,14 +16,30 @@ export type StateApp = {
   logStreamingPaused: boolean;
 };
 
+export type ClashTunConfig = {
+  enable: boolean;
+  device?: string;
+  stack: string;
+  'dns-hijack': string[];
+  'auto-route': boolean;
+}
+
 export type ClashGeneralConfig = {
   port: number;
   'socks-port': number;
+  'mixed-port': number;
   'redir-port': number;
+  'tproxy-port': number;
+  'mitm-port'?: number;
   'allow-lan': boolean;
   mode: string;
   'log-level': string;
+  tun?: ClashTunConfig;
 };
+
+export type TunPartial<T> = {
+  [P in keyof T]?: T[P] extends ClashTunConfig ? TunPartial<T[P]> : T[P];
+}
 
 ///// store.proxies
 

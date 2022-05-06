@@ -11,7 +11,13 @@ import {
   getLatencyTestUrl,
   getSelectedChartStyleIndex,
 } from '../store/app';
-import { fetchConfigs, getConfigs, updateConfigs, reloadConfigs, flushFakeIPPool } from '../store/configs';
+import {
+  fetchConfigs,
+  flushFakeIPPool,
+  getConfigs,
+  reloadConfigFile,
+  updateConfigs,
+} from '../store/configs';
 import { openModal } from '../store/modals';
 import Button from './Button';
 import s0 from './Config.module.scss';
@@ -40,7 +46,7 @@ const portFields = [
   { key: 'socks-port', label: 'SOCKS5 Proxy Port' },
   { key: 'mixed-port', label: 'Mixed Port' },
   { key: 'redir-port', label: 'Redir Port' },
-  { key: 'tproxy-port', label: 'tProxy Port' },
+  { key: 'tproxy-port', label: 'TProxy Port' },
   { key: 'mitm-port', label: 'MITM Port' },
 ];
 
@@ -50,10 +56,15 @@ const langOptions = [
 ];
 
 const modeOptions = [
-  ['Global', 'Global'],
-  ['Rule', 'Rule'],
-  ['Script', 'Script'],
-  ['Direct', 'Direct'],
+  ['rule', 'Rule'],
+  ['script', 'Script'],
+  ['direct', 'Direct'],
+  ['global', 'Global'],
+];
+
+const tunStackOptions = [
+  ['gVisor', 'gVisor'],
+  ['System', 'System'],
 ];
 
 const mapState = (s: State) => ({
@@ -112,6 +123,14 @@ function ConfigImpl({
     [configState]
   );
 
+  const setTunConfigState = useCallback(
+      (name, val) => {
+        const tun = {...configState.tun, [name]: val }
+        setConfigStateInternal({ ...configState, tun: {...tun}});
+      },
+      [configState]
+  );
+
   const handleSwitchOnChange = useCallback(
     (checked: boolean) => {
       const name = 'allow-lan';
@@ -145,11 +164,15 @@ function ConfigImpl({
           }
           setConfigState(name, value);
           break;
+        case 'stack':
+          setTunConfigState(name, value);
+          dispatch(updateConfigs(apiConfig, { 'tun': {[name]: value }}));
+          break;
         default:
           return;
       }
     },
-    [apiConfig, dispatch, setConfigState]
+    [apiConfig, dispatch, setConfigState, setTunConfigState]
   );
 
   const handleInputOnChange = useCallback(
@@ -186,8 +209,8 @@ function ConfigImpl({
     [apiConfig, dispatch, updateAppConfig]
   );
 
-  const handleReloadConfigs = useCallback(() => {
-    dispatch(reloadConfigs(apiConfig));
+  const handleReloadConfigFile = useCallback(() => {
+    dispatch(reloadConfigFile(apiConfig));
   },[apiConfig, dispatch]);
 
   const handleFlushFakeIPPool = useCallback(() => {
@@ -243,6 +266,17 @@ function ConfigImpl({
         </div>
 
         <div>
+          <div className={s0.label}>TUN Stack</div>
+          <Select
+              options={tunStackOptions}
+              selected={configState['tun']['stack']}
+              onChange={(e) =>
+                  handleChangeValue({ name: 'stack', value: e.target.value })
+              }
+          />
+        </div>
+
+        <div>
           <div className={s0.label}>Allow LAN</div>
           <div className={s0.wrapSwitch}>
             <Switch
@@ -251,6 +285,30 @@ function ConfigImpl({
               onChange={handleSwitchOnChange}
             />
           </div>
+        </div>
+      </div>
+
+      <div className={s0.sep}>
+        <div />
+      </div>
+
+      <div className={s0.section}>
+        <div>
+          <div className={s0.label}>Reload</div>
+          <Button
+              start={<RotateCw size={16} />}
+              label={t('reload_config_file')}
+              onClick={handleReloadConfigFile}
+          />
+        </div>
+
+        <div>
+          <div className={s0.label}>FakeIP</div>
+          <Button
+              start={<Trash2 size={16} />}
+              label={t('flush_fake_ip_pool')}
+              onClick={handleFlushFakeIPPool}
+          />
         </div>
       </div>
 
@@ -295,30 +353,6 @@ function ConfigImpl({
             start={<LogOut size={16} />}
             label="Switch backend"
             onClick={openAPIConfigModal}
-          />
-        </div>
-      </div>
-
-      <div className={s0.sep}>
-        <div />
-      </div>
-
-      <div className={s0.section}>
-        <div>
-          <div className={s0.label}>Reload</div>
-          <Button
-              start={<RotateCw size={16} />}
-              label={t('reload_config_file')}
-              onClick={handleReloadConfigs}
-          />
-        </div>
-
-        <div>
-          <div className={s0.label}>FakeIP</div>
-          <Button
-              start={<Trash2 size={16} />}
-              label={t('flush_fake_ip_pool')}
-              onClick={handleFlushFakeIPPool}
           />
         </div>
       </div>
