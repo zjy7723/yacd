@@ -29,7 +29,7 @@ import Switch from './SwitchThemed';
 import TrafficChartSample from './TrafficChartSample';
 // import ToggleSwitch from './ToggleSwitch';
 
-const { useEffect, useState, useCallback, useRef, useMemo } = React;
+const { useEffect, useState, useCallback, useRef } = React;
 
 const propsList = [{ id: 0 }, { id: 1 }, { id: 2 }, { id: 3 }];
 
@@ -56,9 +56,9 @@ const langOptions = [
 ];
 
 const modeOptions = [
+  ['direct', 'Direct'],
   ['rule', 'Rule'],
   ['script', 'Script'],
-  ['direct', 'Direct'],
   ['global', 'Global'],
 ];
 
@@ -218,11 +218,6 @@ function ConfigImpl({
     dispatch(flushFakeIPPool(apiConfig));
   },[apiConfig, dispatch]);
 
-  const mode = useMemo(() => {
-    const m = configState.mode;
-    return typeof m === 'string' && m[0].toUpperCase() + m.slice(1);
-  }, [configState.mode]);
-
   const { t, i18n } = useTranslation();
 
   return (
@@ -248,7 +243,7 @@ function ConfigImpl({
           <div className={s0.label}>Mode</div>
           <Select
             options={modeOptions}
-            selected={mode}
+            selected={configState['mode']}
             onChange={(e) =>
               handleChangeValue({ name: 'mode', value: e.target.value })
             }
@@ -276,7 +271,13 @@ function ConfigImpl({
             />
           </div>
         </div>
+      </div>
 
+      <div className={s0.sep}>
+        <div />
+      </div>
+
+      <div className={s0.section}>
         <div>
           <div className={s0.label}>{t('enable_tun_device')}</div>
           <div className={s0.wrapSwitch}>
@@ -290,7 +291,7 @@ function ConfigImpl({
         </div>
 
         <div>
-          <div className={s0.label}>TUN Stack</div>
+          <div className={s0.label}>TUN IP Stack</div>
           <Select
               options={tunStackOptions}
               selected={configState['tun']['stack']}
