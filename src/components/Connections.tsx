@@ -46,7 +46,7 @@ type FormattedConn = {
   host: string;
   type: string;
   network: string;
-  process: string;
+  process?: string;
   downloadSpeedCurr?: number;
   uploadSpeedCurr?: number;
 };
@@ -99,7 +99,7 @@ function formatConnectionDataItem(
     download,
     start: now - new Date(start).valueOf(),
     chains: chains.reverse().join(' / '),
-    rule: (rulePayload == null || rulePayload === '') ? rule : (`${rule} (${rulePayload})`),
+    rule: !rulePayload ? rule : `${rule} (${rulePayload})`,
     ...metadata,
     host: `${host2}:${destinationPort}`,
     type: `${type}(${network})`,
