@@ -87,12 +87,7 @@ export function updateConfigs(
       });
 
     dispatch('storeConfigsOptimisticUpdateConfigs', (s) => {
-      if (partialConfg.tun != null) {
-        s.configs.configs.tun = { ...s.configs.configs.tun, ...partialConfg.tun };
-      } else {
-        const config: generalConfig = {...s.configs.configs, ...partialConfg};
-        s.configs.configs = config
-      }
+      s.configs.configs = { ...s.configs.configs, ...partialConfg } as generalConfig;
     });
   };
 }
@@ -105,12 +100,35 @@ export function reloadConfigFile(apiConfig: ClashAPIConfig) {
             (res) => {
               if (res.ok === false) {
                 // eslint-disable-next-line no-console
-                console.log('Error update configs', res.statusText);
+                console.log('Error reload config file', res.statusText);
               }
             },
             (err) => {
               // eslint-disable-next-line no-console
-              console.log('Error update configs', err);
+              console.log('Error reload config file', err);
+              throw err;
+            }
+        )
+        .then(() => {
+          dispatch(fetchConfigs(apiConfig));
+        });
+  };
+}
+
+export function updateGeoDatabasesFile(apiConfig: ClashAPIConfig) {
+  return async (dispatch: DispatchFn) => {
+    configsAPI
+        .updateGeoDatabasesFile(apiConfig)
+        .then(
+            (res) => {
+              if (res.ok === false) {
+                // eslint-disable-next-line no-console
+                console.log('Error update geo databases file', res.statusText);
+              }
+            },
+            (err) => {
+              // eslint-disable-next-line no-console
+              console.log('Error update geo databases file', err);
               throw err;
             }
         )
@@ -128,12 +146,12 @@ export function flushFakeIPPool(apiConfig: ClashAPIConfig) {
             (res) => {
               if (res.ok === false) {
                 // eslint-disable-next-line no-console
-                console.log('Error update configs', res.statusText);
+                console.log('Error flush FakeIP pool', res.statusText);
               }
             },
             (err) => {
               // eslint-disable-next-line no-console
-              console.log('Error update configs', err);
+              console.log('Error flush FakeIP pool', err);
               throw err;
             }
         )
@@ -154,6 +172,7 @@ export const initialState: StateConfigs = {
     'allow-lan': false,
     mode: 'rule',
     'log-level': 'uninit',
+    sniffing: false,
     tun: {
       enable: false,
       device: '',

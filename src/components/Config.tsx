@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { LogOut, RotateCw, Trash2 } from 'react-feather';
+import { DownloadCloud, LogOut, RotateCw, Trash2 } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import * as logsApi from 'src/api/logs';
 import Select from 'src/components/shared/Select';
@@ -17,6 +17,7 @@ import {
   getConfigs,
   reloadConfigFile,
   updateConfigs,
+  updateGeoDatabasesFile,
 } from '../store/configs';
 import { openModal } from '../store/modals';
 import Button from './Button';
@@ -46,7 +47,6 @@ const portFields = [
   { key: 'socks-port', label: 'SOCKS5 Proxy Port' },
   { key: 'mixed-port', label: 'Mixed Port' },
   { key: 'redir-port', label: 'Redir Port' },
-  { key: 'tproxy-port', label: 'TProxy Port' },
   { key: 'mitm-port', label: 'MITM Port' },
 ];
 
@@ -131,21 +131,13 @@ function ConfigImpl({
       [configState]
   );
 
-  const handleSwitchOnChange = useCallback(
-    (checked: boolean) => {
-      const name = 'allow-lan';
-      const value = checked;
-      setConfigState(name, value);
-      dispatch(updateConfigs(apiConfig, { 'allow-lan': value }));
-    },
-    [apiConfig, dispatch, setConfigState]
-  );
-
   const handleChangeValue = useCallback(
     ({ name, value }) => {
       switch (name) {
         case 'mode':
         case 'log-level':
+        case 'allow-lan':
+        case 'sniffing':
           setConfigState(name, value);
           dispatch(updateConfigs(apiConfig, { [name]: value }));
           if (name === 'log-level') {
@@ -153,7 +145,6 @@ function ConfigImpl({
           }
           break;
         case 'mitm-port':
-        case 'tproxy-port':
         case 'redir-port':
         case 'socks-port':
         case 'mixed-port':
@@ -167,7 +158,7 @@ function ConfigImpl({
         case 'enable':
         case 'stack':
           setTunConfigState(name, value);
-          dispatch(updateConfigs(apiConfig, { 'tun': {[name]: value }}));
+          dispatch(updateConfigs(apiConfig, { 'tun': { [name]: value }}));
           break;
         default:
           return;
@@ -192,7 +183,6 @@ function ConfigImpl({
         case 'socks-port':
         case 'mixed-port':
         case 'redir-port':
-        case 'tproxy-port':
         case 'mitm-port': {
           const num = parseInt(value, 10);
           if (num < 0 || num > 65535) return;
@@ -212,6 +202,10 @@ function ConfigImpl({
 
   const handleReloadConfigFile = useCallback(() => {
     dispatch(reloadConfigFile(apiConfig));
+  },[apiConfig, dispatch]);
+
+  const handleUpdateGeoDatabasesFile = useCallback(() => {
+    dispatch(updateGeoDatabasesFile(apiConfig));
   },[apiConfig, dispatch]);
 
   const handleFlushFakeIPPool = useCallback(() => {
@@ -262,12 +256,27 @@ function ConfigImpl({
         </div>
 
         <div>
-          <div className={s0.label}>Allow LAN</div>
+          <div className={s0.label}>{t('allow_lan')}</div>
           <div className={s0.wrapSwitch}>
             <Switch
               name="allow-lan"
               checked={configState['allow-lan']}
-              onChange={handleSwitchOnChange}
+              onChange={(value: boolean) =>
+                handleChangeValue({ name: 'allow-lan', value: value })
+              }
+            />
+          </div>
+        </div>
+
+        <div>
+          <div className={s0.label}>{t('tls_sniffing')}</div>
+          <div className={s0.wrapSwitch}>
+            <Switch
+                name="sniffing"
+                checked={configState['sniffing']}
+                onChange={(value: boolean) =>
+                  handleChangeValue({ name: 'sniffing', value: value })
+                }
             />
           </div>
         </div>
@@ -313,6 +322,15 @@ function ConfigImpl({
               start={<RotateCw size={16} />}
               label={t('reload_config_file')}
               onClick={handleReloadConfigFile}
+          />
+        </div>
+
+        <div>
+          <div className={s0.label}>GEO Databases</div>
+          <Button
+              start={<DownloadCloud size={16} />}
+              label={t('update_geo_databases_file')}
+              onClick={handleUpdateGeoDatabasesFile}
           />
         </div>
 

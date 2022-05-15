@@ -34,6 +34,7 @@ export type ClashGeneralConfig = {
   'allow-lan': boolean;
   mode: string;
   'log-level': string;
+  sniffing?: boolean;
   tun?: ClashTunConfig;
 };
 

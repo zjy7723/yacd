@@ -3,6 +3,7 @@ import { ClashGeneralConfig, TunPartial } from 'src/store/types';
 import { ClashAPIConfig } from 'src/types';
 
 const endpoint = '/configs';
+const updateGeoDatabasesFileEndpoint = '/configs/geo';
 const flushFakeIPPoolEndpoint = '/cache/fakeip/flush';
 
 export async function fetchConfigs(apiConfig: ClashAPIConfig) {
@@ -38,6 +39,14 @@ export async function reloadConfigFile(
   const { url, init } = getURLAndInit(apiConfig);
   const body = '{"path": "", "payload": ""}';
   return await fetch(url + endpoint + '?force=true', { ...init, body, method: 'PUT' });
+}
+
+export async function updateGeoDatabasesFile(
+    apiConfig: ClashAPIConfig
+) {
+  const { url, init } = getURLAndInit(apiConfig);
+  const body = '{"path": "", "payload": ""}';
+  return await fetch(url + updateGeoDatabasesFileEndpoint, { ...init, body, method: 'POST' });
 }
 
 export async function flushFakeIPPool(

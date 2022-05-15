@@ -37,6 +37,9 @@ export const data = {
   update_all_rule_provider: '更新所有 rule provider',
   update_all_proxy_provider: '更新所有 proxy providers',
   reload_config_file: '重载配置文件',
+  update_geo_databases_file: '更新 GEO 数据库文件',
   flush_fake_ip_pool: '清空 FakeIP 数据库',
   enable_tun_device: '开启 TUN 转发',
+  allow_lan: '允许局域网连接',
+  tls_sniffing: 'SNI 嗅探',
 };
