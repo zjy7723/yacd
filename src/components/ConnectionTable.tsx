@@ -1,7 +1,9 @@
 import cx from 'clsx';
-import { formatDistance } from 'date-fns';
+import { formatDistance, Locale } from 'date-fns';
+import { enUS, zhCN } from 'date-fns/locale'
 import React from 'react';
 import { ChevronDown } from 'react-feather';
+import { useTranslation } from 'react-i18next';
 import { useSortBy, useTable } from 'react-table';
 
 import prettyBytes from '../misc/pretty-bytes';
@@ -11,24 +13,24 @@ const sortDescFirst = true;
 
 const columns = [
   { accessor: 'id', show: false },
-  { Header: 'Host', accessor: 'host' },
-  { Header: 'Process', accessor: 'process' },
-  { Header: 'DL', accessor: 'download', sortDescFirst },
-  { Header: 'UL', accessor: 'upload', sortDescFirst },
-  { Header: 'DL Speed', accessor: 'downloadSpeedCurr', sortDescFirst },
-  { Header: 'UL Speed', accessor: 'uploadSpeedCurr', sortDescFirst },
-  { Header: 'Chains', accessor: 'chains' },
-  { Header: 'Rule', accessor: 'rule' },
-  { Header: 'Time', accessor: 'start', sortDescFirst },
-  { Header: 'Source', accessor: 'source' },
-  { Header: 'Destination IP', accessor: 'destinationIP' },
-  { Header: 'Type', accessor: 'type' },
+  { Header: 'c_host', accessor: 'host' },
+  { Header: 'c_process', accessor: 'process' },
+  { Header: 'c_dl', accessor: 'download', sortDescFirst },
+  { Header: 'c_ul', accessor: 'upload', sortDescFirst },
+  { Header: 'c_dl_speed', accessor: 'downloadSpeedCurr', sortDescFirst },
+  { Header: 'c_ul_speed', accessor: 'uploadSpeedCurr', sortDescFirst },
+  { Header: 'c_chains', accessor: 'chains' },
+  { Header: 'c_rule', accessor: 'rule' },
+  { Header: 'c_time', accessor: 'start', sortDescFirst },
+  { Header: 'c_source', accessor: 'source' },
+  { Header: 'c_destination_ip', accessor: 'destinationIP' },
+  { Header: 'c_type', accessor: 'type' },
 ];
 
-function renderCell(cell: { column: { id: string }; value: number }) {
+function renderCell(cell: { column: { id: string }; value: number }, locale: Locale) {
   switch (cell.column.id) {
     case 'start':
-      return formatDistance(cell.value, 0);
+      return formatDistance(cell.value, 0, { locale: locale });
     case 'download':
     case 'upload':
       return prettyBytes(cell.value);
@@ -59,6 +61,10 @@ function Table({ data }) {
     },
     useSortBy
   );
+
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language === 'zh' ? zhCN : enUS;
+
   return (
     <div {...getTableProps()}>
       {headerGroups.map((headerGroup) => {
@@ -69,7 +75,7 @@ function Table({ data }) {
                 {...column.getHeaderProps(column.getSortByToggleProps())}
                 className={s.th}
               >
-                <span>{column.render('Header')}</span>
+                <span>{t(column.render('Header'))}</span>
                 <span className={s.sortIconContainer}>
                   {column.isSorted ? (
                     <span className={column.isSortedDesc ? '' : s.rotate180}>
@@ -92,7 +98,7 @@ function Table({ data }) {
                       j >= 2 && j <= 5 ? s.du : false
                     )}
                   >
-                    {renderCell(cell)}
+                    {renderCell(cell, locale)}
                   </div>
                 );
               });

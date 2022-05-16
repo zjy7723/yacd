@@ -210,7 +210,7 @@ function Conn({ apiConfig }) {
               name="filter"
               autoComplete="off"
               className={s.input}
-              placeholder="Filter"
+              placeholder={t('Search')}
               onChange={(e) => setFilterKeyword(e.target.value)}
             />
           </div>
@@ -231,7 +231,7 @@ function Conn({ apiConfig }) {
                 text={isRefreshPaused ? t('Resume Refresh') : t('Pause Refresh')}
                 onClick={toggleIsRefreshPaused}
               >
-                <Action text="Close All Connections" onClick={openCloseAllModal}>
+                <Action text={t('close_all_connections')} onClick={openCloseAllModal}>
                   <IconClose size={10} />
                 </Action>
               </Fab>
