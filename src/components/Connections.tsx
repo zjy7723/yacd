@@ -93,7 +93,7 @@ function formatConnectionDataItem(
   let host2 = host;
   if (host2 === '') host2 = destinationIP;
   const prev = prevKv[id];
-  const ret = {
+  return {
     id,
     upload,
     download,
@@ -106,9 +106,8 @@ function formatConnectionDataItem(
     source: `${sourceIP}:${sourcePort}`,
     downloadSpeedCurr: download - (prev ? prev.download : 0),
     uploadSpeedCurr: upload - (prev ? prev.upload : 0),
-    process,
+    process: process ? process : '',
   };
-  return ret;
 }
 
 function renderTableOrPlaceholder(conns: FormattedConn[]) {

@@ -22,6 +22,7 @@ export type ClashTunConfig = {
   stack: string;
   'dns-hijack': string[];
   'auto-route': boolean;
+  'auto-detect-interface': boolean;
 }
 
 export type ClashGeneralConfig = {

@@ -36,7 +36,7 @@ export function fetchConfigs(apiConfig: ClashAPIConfig) {
     const payload = await res.json();
 
     dispatch('store/configs#fetchConfigs', (s) => {
-      s.configs.configs = payload;
+      s.configs.configs = { ...s.configs.configs, ...payload };
     });
 
     const haveFetchedConfig = getHaveFetched(getState());
@@ -163,22 +163,23 @@ export function flushFakeIPPool(apiConfig: ClashAPIConfig) {
 
 export const initialState: StateConfigs = {
   configs: {
-    port: 7890,
-    'socks-port': 7891,
-    'mixed-port': 0,
+    port: 0,
+    'socks-port': 0,
+    'mixed-port': 7890,
     'redir-port': 0,
     'tproxy-port': 0,
     'mitm-port': 0,
     'allow-lan': false,
     mode: 'rule',
-    'log-level': 'uninit',
+    'log-level': 'info',
     sniffing: false,
     tun: {
       enable: false,
       device: '',
-      stack: '',
+      stack: 'gVisor',
       'dns-hijack': [],
       'auto-route': false,
+      'auto-detect-interface': false,
     },
   },
   haveFetchedConfig: false,
