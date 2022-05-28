@@ -171,7 +171,7 @@ export const initialState: StateConfigs = {
     'mitm-port': 0,
     'allow-lan': false,
     mode: 'rule',
-    'log-level': 'info',
+    'log-level': 'uninit',
     sniffing: false,
     tun: {
       enable: false,
