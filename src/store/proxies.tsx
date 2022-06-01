@@ -78,17 +78,19 @@ export function fetchProxies(apiConfig: ClashAPIConfig) {
     }
 
     // proxies that are not from a provider
-    const dangleProxyNames = [];
-    for (const v of proxyNames) {
-      if (!providerProxies[v]) dangleProxyNames.push(v);
-    }
+    // const dangleProxyNames = [];
+    // for (const v of proxyNames) {
+    //   if (!providerProxies[v]) dangleProxyNames.push(v);
+    // }
 
     dispatch('store/proxies#fetchProxies', (s: State) => {
       s.proxies.proxies = proxies;
       s.proxies.groupNames = groupNames;
       s.proxies.delay = delayNext;
       s.proxies.proxyProviders = proxyProviders;
-      s.proxies.dangleProxyNames = dangleProxyNames;
+      // s.proxies.dangleProxyNames = dangleProxyNames;
+      // TODO proxies that should not be excluded the provider on delay test
+      s.proxies.dangleProxyNames = proxyNames;
     });
   };
 }
@@ -371,7 +373,7 @@ function retrieveGroupNamesFrom(proxies: Record<string, ProxyItem>) {
   }
   if (globalAll) {
     // Put GLOBAL in the end
-    globalAll.push('GLOBAL');
+    // globalAll.push('GLOBAL'); // TODO this would cause the cycle use, should delete it.
     // Sort groups according to its index in GLOBAL group
     groupNames = groupNames
       .map((name) => [globalAll.indexOf(name), name])
