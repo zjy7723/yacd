@@ -363,22 +363,24 @@ function retrieveGroupNamesFrom(proxies: Record<string, ProxyItem>) {
   for (const prop in proxies) {
     const p = proxies[prop];
     if (p.all && Array.isArray(p.all)) {
-      groupNames.push(prop);
       if (prop === 'GLOBAL') {
         globalAll = p.all;
+      } else {
+        groupNames.push(prop);
       }
-    } else if (NonProxyTypes.indexOf(p.type) < 0) {
+    } else if (NonProxyTypes.indexOf(p.type) === -1) {
       proxyNames.push(prop);
     }
   }
   if (globalAll) {
-    // Put GLOBAL in the end
-    // globalAll.push('GLOBAL'); // TODO this would cause the cycle use, should delete it.
     // Sort groups according to its index in GLOBAL group
     groupNames = groupNames
       .map((name) => [globalAll.indexOf(name), name])
       .sort((a, b) => a[0] - b[0])
       .map((group) => group[1]);
+
+    // Put GLOBAL in the end
+    groupNames.push('GLOBAL');
   }
   return [groupNames, proxyNames];
 }

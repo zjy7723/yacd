@@ -46,7 +46,7 @@ export type TunPartial<T> = {
 ///// store.proxies
 
 type LatencyHistory = Array<{ time: string; delay: number }>;
-type PrimitiveProxyType = 'Shadowsocks' | 'Snell' | 'Socks5' | 'Http' | 'Vmess';
+type PrimitiveProxyType = 'Shadowsocks' | 'ShadowsocksR' | 'Snell' | 'Socks5' | 'Http' | 'Vmess' | 'Trojan' | 'Vless';
 export type ProxyItem = {
   name: string;
   type: PrimitiveProxyType;
