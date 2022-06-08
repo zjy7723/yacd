@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { DownloadCloud, LogOut, RotateCw, Trash2 } from 'react-feather';
 import { useTranslation } from 'react-i18next';
+import { closeAllConnections } from "src/api/connections";
 import * as logsApi from 'src/api/logs';
 import Select from 'src/components/shared/Select';
 import { ClashGeneralConfig, DispatchFn, State } from 'src/store/types';
@@ -147,7 +148,9 @@ function ConfigImpl({
         case 'enable':
         case 'stack':
           setTunConfigState(name, value);
-          dispatch(updateConfigs(apiConfig, { 'tun': { [name]: value }}));
+          dispatch(updateConfigs(apiConfig, { 'tun': { [name]: value }})).then(() => {
+            closeAllConnections(apiConfig);
+          });
           break;
         default:
           return;

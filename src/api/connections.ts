@@ -10,7 +10,7 @@ const subscribers = [];
 // see also https://github.com/Dreamacro/clash/blob/dev/constant/metadata.go#L41
 type UUID = string;
 type ConnNetwork = 'tcp' | 'udp';
-type ConnType = 'HTTP' | 'HTTP Connect' | 'Socks5' | 'Redir' | 'Unknown';
+type ConnType = 'HTTP' | 'HTTP Connect' | 'Socks4' | 'Socks5' | 'Redir' | 'TProxy' | 'Tun' | 'Mitm' | 'Unknown';
 export type ConnectionItem = {
   id: UUID;
   metadata: {
@@ -22,6 +22,7 @@ export type ConnectionItem = {
     destinationPort: string;
     host: string;
     process?: string;
+    processPath?: string;
   };
   upload: number;
   download: number;
@@ -86,4 +87,8 @@ export async function closeConnById(apiConfig: ClashAPIConfig, id: string) {
   const { url: baseURL, init } = getURLAndInit(apiConfig);
   const url = `${baseURL}${endpoint}/${id}`;
   return await fetch(url, { ...init, method: 'DELETE' });
+}
+
+export function basePath (path: string) {
+  return path.replace(/.*[/\\]/, '')
 }

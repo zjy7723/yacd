@@ -4,7 +4,7 @@ import React from 'react';
 import { Pause, Play, X as IconClose } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
-import { ConnectionItem } from 'src/api/connections';
+import { basePath, ConnectionItem } from 'src/api/connections';
 import { State } from 'src/store/types';
 
 import * as connAPI from '../api/connections';
@@ -88,6 +88,7 @@ function formatConnectionDataItem(
     sourceIP,
     sourcePort,
     process,
+    processPath,
   } = metadata;
   // host could be an empty string if it's direct IP connection
   let host2 = host;
@@ -106,7 +107,7 @@ function formatConnectionDataItem(
     source: `${sourceIP}:${sourcePort}`,
     downloadSpeedCurr: download - (prev ? prev.download : 0),
     uploadSpeedCurr: upload - (prev ? prev.upload : 0),
-    process: process ? process : '',
+    process: process ? process : (processPath ? basePath(processPath) : ''),
   };
 }
 
