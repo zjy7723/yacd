@@ -71,10 +71,7 @@ function Table({ data }) {
         return (
           <div {...headerGroup.getHeaderGroupProps()} className={s.tr}>
             {headerGroup.headers.map((column) => (
-              <div
-                {...column.getHeaderProps(column.getSortByToggleProps())}
-                className={s.th}
-              >
+              <div {...column.getHeaderProps(column.getSortByToggleProps())} className={s.th}>
                 <span>{t(column.render('Header'))}</span>
                 <span className={s.sortIconContainer}>
                   {column.isSorted ? (

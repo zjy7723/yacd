@@ -6,19 +6,8 @@ import Select from 'src/components/shared/Select';
 import { ClashGeneralConfig, DispatchFn, State } from 'src/store/types';
 import { ClashAPIConfig } from 'src/types';
 
-import {
-  getClashAPIConfig,
-  getLatencyTestUrl,
-  getSelectedChartStyleIndex,
-} from '../store/app';
-import {
-  fetchConfigs,
-  flushFakeIPPool,
-  getConfigs,
-  reloadConfigFile,
-  updateConfigs,
-  updateGeoDatabasesFile,
-} from '../store/configs';
+import { getClashAPIConfig, getLatencyTestUrl, getSelectedChartStyleIndex } from '../store/app';
+import { fetchConfigs, flushFakeIPPool, getConfigs, reloadConfigFile, updateConfigs, updateGeoDatabasesFile } from '../store/configs';
 import { openModal } from '../store/modals';
 import Button from './Button';
 import s0 from './Config.module.scss';
@@ -117,7 +106,7 @@ function ConfigImpl({
   }, [dispatch]);
 
   const setConfigState = useCallback(
-    (name, val) => {
+    (name: keyof ClashGeneralConfig, val: ClashGeneralConfig[keyof ClashGeneralConfig]) => {
       setConfigStateInternal({ ...configState, [name]: val });
     },
     [configState]
@@ -167,14 +156,14 @@ function ConfigImpl({
     [apiConfig, dispatch, setConfigState, setTunConfigState]
   );
 
-  const handleInputOnChange = useCallback(
+  const handleInputOnChange = useCallback<React.ChangeEventHandler<HTMLInputElement>>(
     (e) => handleChangeValue(e.target),
     [handleChangeValue]
   );
 
   const { selectChartStyleIndex, updateAppConfig } = useStoreActions();
 
-  const handleInputOnBlur = useCallback(
+  const handleInputOnBlur = useCallback<React.FocusEventHandler<HTMLInputElement>>(
     (e) => {
       const target = e.target;
       const { name, value } = target;
@@ -226,7 +215,6 @@ function ConfigImpl({
                 name={f.key}
                 value={configState[f.key]}
                 onChange={handleInputOnChange}
-                // @ts-expect-error ts-migrate(2322) FIXME: Type '{ name: string; value: any; onChange: (e: an... Remove this comment to see the full error message
                 onBlur={handleInputOnBlur}
               />
             </div>
@@ -238,9 +226,7 @@ function ConfigImpl({
           <Select
             options={modeOptions}
             selected={configState['mode']}
-            onChange={(e) =>
-              handleChangeValue({ name: 'mode', value: e.target.value })
-            }
+            onChange={(e) =>  handleChangeValue({ name: 'mode', value: e.target.value })}
           />
         </div>
 
@@ -249,9 +235,7 @@ function ConfigImpl({
           <Select
             options={logLeveOptions}
             selected={configState['log-level']}
-            onChange={(e) =>
-              handleChangeValue({ name: 'log-level', value: e.target.value })
-            }
+            onChange={(e) => handleChangeValue({ name: 'log-level', value: e.target.value })}
           />
         </div>
 
