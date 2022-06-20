@@ -35,7 +35,7 @@ export const data = {
   no_logs: '暂无日志...',
   chart_style: '流量图样式',
   latency_test_url: '延迟测速 URL',
-  lang: '语言',
+  lang: 'Language',
   update_all_rule_provider: '更新所有 rule provider',
   update_all_proxy_provider: '更新所有 proxy providers',
   reload_config_file: '重载配置文件',
