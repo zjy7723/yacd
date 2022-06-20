@@ -2,8 +2,7 @@ import Tooltip from '@reach/tooltip';
 import * as React from 'react';
 
 import { useState2 } from '$src/hooks/basic';
-import { DelayMapping, DispatchFn, ProxiesMapping, State } from '$src/store/types';
-import { ClashAPIConfig } from '$src/types';
+import { State } from '$src/store/types';
 
 import { getCollapsibleIsOpen, getHideUnavailableProxies, getProxySortBy } from '../../store/app';
 import { getProxies, switchProxy } from '../../store/proxies';
@@ -17,20 +16,6 @@ import { ProxyList, ProxyListSummaryView } from './ProxyList';
 
 const { createElement, useCallback, useMemo } = React;
 
-type ProxyGroupImplProps = {
-  name: string;
-  all: string[];
-  delay: DelayMapping;
-  hideUnavailableProxies: boolean;
-  proxySortBy: string;
-  proxies: ProxiesMapping;
-  type: string;
-  now: string;
-  isOpen: boolean;
-  apiConfig: ClashAPIConfig;
-  dispatch: DispatchFn;
-};
-
 function ProxyGroupImpl({
   name,
   all: allItems,
@@ -43,7 +28,7 @@ function ProxyGroupImpl({
   isOpen,
   apiConfig,
   dispatch,
-}: ProxyGroupImplProps) {
+}) {
   const all = useFilteredAndSorted(allItems, delay, hideUnavailableProxies, proxySortBy, proxies);
 
   const isSelectable = useMemo(() => type === 'Selector', [type]);
